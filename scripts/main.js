@@ -15,16 +15,20 @@ game.update = function() {
     dungeon.update()
 }
 
-game.registerAction('a', () => {
+game.registerAction('h', () => {
     dungeon.moveTetrominoLeft()
 })
 
-game.registerAction('d', () => {
+game.registerAction('l', () => {
     dungeon.moveTetrominoRight()
 })
 
-game.registerAction('s', () => {
-    dungeon.rotateTetromino()
+game.registerAction('j', () => {
+    dungeon.rotateLeftTetromino()
+})
+
+game.registerAction('k', () => {
+    dungeon.rotateRightTetromino()
 })
 
 // 按空格开始

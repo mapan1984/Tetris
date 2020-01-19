@@ -1,4 +1,5 @@
 import Tetromino from './tetromino.js'
+import {rotateLeft, rotateRight, copy} from './utils.js'
 
 class Dungeon {
     constructor(width, height, gridSize, mapId) {
@@ -36,37 +37,37 @@ class Dungeon {
         this.tetromino = new Tetromino(Math.floor(this.xMax / 2), -3, 'L')
     }
 
-    check(tetromino) {
-        let tetrominoGrids = []
-
-        let isFill = false
-
-        for (let i = 0; i < tetromino.body.length; i++) {
-            let row = tetromino.body[i]
+    fill() {
+        for (let i = 0; i < this.tetromino.body.length; i++) {
+            let row = this.tetromino.body[i]
             for (let j = 0; j < row.length; j++) {
                 if (row[j] == 1) {
-                    let x = tetromino.x + j
-                    let y = tetromino.y + i
+                    let x = this.tetromino.x + j
+                    let y = this.tetromino.y + i
 
-                    tetrominoGrids.push([x, y])
-
-                    // 再向下就会碰撞
-                    if (this.grids[y+1] && this.grids[y+1][x]) {
-                        isFill = true
-                    }
-                }
-            }
-        }
-
-        if (isFill) {
-            for (let [x, y] of tetrominoGrids) {
-                if (this.grids[y]) {
                     this.grids[y][x] = 1
                 }
             }
         }
+    }
 
-        return isFill
+    checkY() {
+        for (let i = 0; i < this.tetromino.body.length; i++) {
+            let row = this.tetromino.body[i]
+            for (let j = 0; j < row.length; j++) {
+                if (row[j] == 1) {
+                    let x = this.tetromino.x + j
+                    let y = this.tetromino.y + i
+
+                    // 再向下就会碰撞
+                    if (this.grids[y+1] && this.grids[y+1][x]) {
+                        this.tetromino.isBlock = true
+                        return true
+                    }
+                }
+            }
+        }
+        return false
     }
 
     checkX(direction) {
@@ -96,31 +97,65 @@ class Dungeon {
         return false
     }
 
+    checkRotate(direction) {
+        let newTetromino = copy(this.tetromino.body)
+        if (direction == 'left') {
+            rotateLeft(newTetromino)
+        } else if (direction == 'right') {
+            rotateRight(newTetromino)
+        }
+        for (let i = 0; i < newTetromino.length; i++) {
+            let row = newTetromino[i]
+            for (let j = 0; j < row.length; j++) {
+                if (row[j] == 1) {
+                    let x = this.tetromino.x + j
+                    let y = this.tetromino.y + i
+
+                    if (x < 0 || x > this.xMax - 1) {
+                        return true
+                    }
+
+                    if (this.grids[y] && this.grids[y][x]) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+
+    }
+
     update() {
-        this.tetromino.down()
-        let isFill = this.check(this.tetromino)
-        if (isFill) {
-            console.log('isFill')
+        if (!this.checkY()) {
+            this.tetromino.down()
+        } else {
+            this.fill()
             this.tetromino.randomReset(Math.floor(this.xMax / 2), -4)
         }
     }
 
     moveTetrominoLeft() {
-        console.log('moveTetrominoLeft')
         if (!this.checkX('left')) {
             this.tetromino.left()
         }
     }
 
     moveTetrominoRight() {
-        console.log('moveTetrominoRight')
         if (!this.checkX('right')) {
             this.tetromino.right()
         }
     }
 
-    rotateTetromino() {
-        this.tetromino.rotate()
+    rotateLeftTetromino() {
+        if (!this.checkRotate('left')) {
+            this.tetromino.rotateLeft()
+        }
+    }
+
+    rotateRightTetromino() {
+        if (!this.checkRotate('right')) {
+            this.tetromino.rotateRight()
+        }
     }
 
     show() {

@@ -1,3 +1,6 @@
+import {random, rotateRight, rotateLeft} from './utils.js'
+
+
 const SHAPE = {
     'L': [
         [1, 0, 0],
@@ -36,11 +39,6 @@ const SHAPE = {
     ],
 }
 
-
-function random(min, max) {
-    return (min + (Math.random() * (max - min)))
-}
-
 class Tetromino {
     constructor(x, y, shape) {
         // x,y 表示方块的左上角
@@ -52,22 +50,12 @@ class Tetromino {
         this.shapes = [];
     }
 
-    rotate() {
-        function r(matrix) {
-            const n = matrix.length;
-            const x = Math.floor(n / 2);
-            const y = n - 1;
-            for (let i = 0; i < x; i++) {
-               for (let j = i; j < y - i; j++) {
-                  let k = matrix[i][j];
-                  matrix[i][j] = matrix[y - j][i];
-                  matrix[y - j][i] = matrix[y - i][y - j];
-                  matrix[y - i][y - j] = matrix[j][y - i]
-                  matrix[j][y - i] = k
-               }
-            }
-        }
-        r(this.body)
+    rotateRight() {
+        rotateRight(this.body)
+    }
+
+    rotateLeft() {
+        rotateLeft(this.body)
     }
 
     left() {
@@ -95,7 +83,7 @@ class Tetromino {
             ]
         }
         // remove a single piece
-        let shape = this.shapes.splice(random(0, this.shapes.length-1), 1)[0]
+        let shape = this.shapes.splice(random(0, this.shapes.length - 1), 1)[0]
 
         this.x = x
         this.y = y
