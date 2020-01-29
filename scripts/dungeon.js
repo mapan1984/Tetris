@@ -45,8 +45,24 @@ class Dungeon {
                     let x = this.tetromino.x + j
                     let y = this.tetromino.y + i
 
-                    this.grids[y][x] = 1
+                    if (this.grids[y] == undefined) {
+                        alert('Game Over')
+                        throw new Error('Game Over')
+                    } else {
+                        this.grids[y][x] = 1
+                    }
                 }
+            }
+        }
+
+        // 消除
+        for (let y = this.grids.length - 2; y > -1; y--) {
+            let row = this.grids[y]
+            if (row.reduce((a, b) => a & b) == 1) {
+                for (let j = y; j > 0; j--) {
+                    this.grids[j] = this.grids[j-1]
+                }
+                this.grids[0] = Array(this.xMax).fill(0)
             }
         }
     }
@@ -122,7 +138,6 @@ class Dungeon {
             }
         }
         return false
-
     }
 
     update() {

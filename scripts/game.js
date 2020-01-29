@@ -1,11 +1,17 @@
 class Game {
-    constructor() {
-        this.fps = 5
+    constructor(fps=5) {
+        this.fps = fps
         this.runing = false
         this.actions = {}
-        this.draw()
 
         this.lastDrawTime = null
+        this.fpsInterval = 1000 / this.fps
+
+        this.draw()
+    }
+
+    setFps(fps) {
+        this.fps = fps
         this.fpsInterval = 1000 / this.fps
     }
 
@@ -24,37 +30,42 @@ class Game {
 
     update() { }
 
+    reset() {}
+
     start() {
         if (this.runing) {
             return
         }
 
         this.runing = true
-        this.interval = setInterval(() => {
-            try {
-                this.update()
-                this.draw()
-            } catch(e) { // 死亡
-                console.error(e.stack)
-                // this.snake.reset(7, 7)
-                clearInterval(this.interval)
-                this.runing = false
-            }
-        }, 1000 / this.fps)
+
+        this.loop()
     }
 
-    run() {
-        this.timer = setTimeout(() => {
-            try {
-                this.update()
-                this.draw()
+    stop() {
+        if (!this.runing) {
+            return
+        }
 
-                this.timer = setTimeout(this.run.bind(this), 1000 / this.fps)
-            } catch(e) { // 死亡
-                console.error(e.stack)
-                clearTimeout(this.timer)
-            }
-        }, 1000 / this.fps)
+        if (this.__requestAnimationFrameID) {
+            cancelAnimationFrame(this.__requestAnimationFrameID)
+        }
+        if (this.__intervalID) {
+            clearInterval(this.__intervalID)
+        }
+        if (this.__timeoutID) {
+            clearTimeout(this.__timeoutID)
+        }
+
+        this.runing = false
+    }
+
+    taggle() {
+        if (this.runing) {
+            this.stop()
+        } else {
+            this.start()
+        }
     }
 
     loop(timestamp) {
@@ -70,11 +81,37 @@ class Game {
                 this.update()
                 this.draw()
             }
-            this.req = requestAnimationFrame(this.loop.bind(this))
-        } catch(e) { // 死亡
+            this.__requestAnimationFrameID = requestAnimationFrame(this.loop.bind(this))
+        } catch(e) {
             console.error(e.stack)
-            cancelAnimationFrame(this.req)
+            this.stop()
         }
+    }
+
+    setIntervalLoop() {
+        this.__intervalID = setInterval(() => {
+            try {
+                this.update()
+                this.draw()
+            } catch(e) {
+                console.error(e.stack)
+                this.stop()
+            }
+        }, this.fpsInterval)
+    }
+
+    setTimeoutLoop() {
+        this.__timeoutID = setTimeout(() => {
+            try {
+                this.update()
+                this.draw()
+
+                this.__timeoutID = setTimeout(this.setTimeoutLoop.bind(this), this.fpsInterval)
+            } catch(e) {
+                console.error(e.stack)
+                this.stop()
+            }
+        }, this.fpsInterval)
     }
 }
 

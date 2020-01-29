@@ -32,7 +32,6 @@ game.registerAction('k', () => {
 })
 
 // 按空格开始
-// game.registerAction(' ', game.start.bind(game))
-game.registerAction(' ', game.loop.bind(game))
+game.registerAction(' ', game.taggle.bind(game))
 
 game.listen()
